@@ -2,7 +2,7 @@
 
 Trong bài tập lớn này, mục tiêu khi viết một phiên bản Java mô phỏng lại game Flappy Bird chứa các yếu tố hướng đối tượng.
 
-![](https://dichso.com/wp-content/uploads/2014/02/Flappy-Bird-1024x824.jpg)
+![](https://cdnmedia.baotintuc.vn/Upload/yTwlGtgJTRZkeJAfcpWR4g/files/2023/08/8C/040823-tro-choi-bird.jpg)
 
 ## Mô tả các đối tượng trong trò chơi
 
