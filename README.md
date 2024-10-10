@@ -12,8 +12,8 @@ Nếu bạn đã từng chơi FlappyBird, bạn sẽ cảm thấy quen thuộc v
 - <img src="https://github.com/huyonezeno/Flappy-bird/blob/main/res/tube_up.webp" alt="Tube icon" width="14px" height="24px"> *Tube* là đối tượng không cố định, xuất hiện với chiều cao ngẫu nhiên ở nền trên và nền dưới của khu vực chơi
 - <img src="https://github.com/huyonezeno/Flappy-bird/blob/main/res/Score.png" alt="score icon" width="28px" height="24px"> *Score* là đối tượng biểu thị điểm của người chơi trong suốt quá trình chơi.Khi Bird qua được một Tube thì Score sẽ tăng 1 đơn vị, điểm sẽ bị khóa khi Bird bị rơi hoặc va vào Tube
 - <img src="https://github.com/huyonezeno/Flappy-bird/blob/main/res/Useraction.png" alt="useraction icon" width="24px" height="24px"> *UserAction* biểu thị những hoạt động của người chơi tương tác với trò chơi.
-- *Background* là đối tượng tạo hiệu ứng cuộn nền nơi nền di chuyển từ phải sang trái cùng với các Tube để tạo cảm giác di chuyển của đối tượng Bird.
-- *LeaderBoard* hiển thị điểm của 10 người chơi cao điểm nhất và được cập nhật liên tục khi có người chơi vượt qua đưuọc những người chơi trước nằm trong top 10.
+- <img src="https://github.com/huyonezeno/Flappy-bird/blob/main/res/background.png" alt="background icon" width="24px" height="24px"> *Background* là đối tượng tạo hiệu ứng cuộn nền nơi nền di chuyển từ phải sang trái cùng với các Tube để tạo cảm giác di chuyển của đối tượng Bird.
+- <img src="https://github.com/huyonezeno/Flappy-bird/blob/main/res/leaderboard.png" alt="leaderboard icon" width="24px" height="24px"> *LeaderBoard* hiển thị điểm của 10 người chơi cao điểm nhất và được cập nhật liên tục khi có người chơi vượt qua đưuọc những người chơi trước nằm trong top 10.
 
 ## Mô tả game play, xử lí khi va chạm, tính điểm
 - Trong một màn chơi, khi người chơi click lần đàu tiên sẽ khởi động game và nền bắt đầu di chuyển cùng với các Tube từ trái sang phải đến đối tượng Bird.
