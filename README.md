@@ -20,7 +20,7 @@ Nếu bạn đã từng chơi FlappyBird, bạn sẽ cảm thấy quen thuộc v
 - Lúc này người chơi sẽ điều chỉnh tần suất click làm cho Bird bay lên sao cho tránh va phải các Tube và đi qua khe hở giữa các Tube mà không chạm vào các Tube.
 - Khi người buông chuột và ko click , Bird sẽ rơi và người chơi sẽ thua hoặc đâm vào các Tube thì sẽ dừng trò chơi và xuất hiện hộp thoại có các tùy chọn **OK** và **SHARE** để bắt đầu ván mới hoặc chia sẻ với bạn bè về điểm cao mới của mình.
 - Nếu người chơi lọt vào LeaderBoard,hộp thoại sẽ hiển thị vị trí của người chơi đó trong 10 người có điểm coa nhất được ghi nhận.
-- Người chơi cũng có thể tạm dừng trò chơi giữa nếu thấy game quá khó!!!
+- Người chơi cũng có thể tạm dừng trò chơi để chơi một ván mới.
 
 ## Mô tả chi tiết về project
 [UML](https://drive.google.com/file/d/1qPJnqrg3PO47RNYh01_HYLADr3DAurY5/view?usp=drivesdk)
