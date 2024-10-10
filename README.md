@@ -23,3 +23,4 @@ Nếu bạn đã từng chơi FlappyBird, bạn sẽ cảm thấy quen thuộc v
 - Người chơi cũng có thể tạm dừng trò chơi giữa nếu thấy game quá khó!!!
 
 ## Mô tả chi tiết về project
+[UML](https://drive.google.com/file/d/1qPJnqrg3PO47RNYh01_HYLADr3DAurY5/view?usp=drivesdk)
