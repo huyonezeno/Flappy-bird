@@ -1,68 +1,117 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package javaapplication11;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Random;
+import java.awt.event.KeyEvent.*;
 import javax.swing.*;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.io.InputStream;
+import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.awt.image.BufferedImage;
+import java.util.Calendar;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
-public class Game extends JPanel implements ActionListener, KeyListener {
+public class Game extends JPanel implements ActionListener, KeyListener, MouseListener {
 
+    // kích thước của JPanel
     int boardWidth = 500;
     int boardHeight = 500;
 
-    Image birdImage;
-    Image birdDieImage;
-    Image bottomPipeImage;
-    Image topPipeImage;
-    Image foregroundImage;
-    Image backgroundImage;
-
+    // các ảnh đồ họa cần thiết trong game
+    BufferedImage birdImage[] = new BufferedImage[3];
+    BufferedImage bottomPipeImage;
+    BufferedImage topPipeImage;
+    BufferedImage foregroundImage;
+    BufferedImage backgroundImage;
+    BufferedImage gameOverLabel;
+    BufferedImage restartButton;
+    BufferedImage addToLeaderBoardButton;
+    BufferedImage scoreBoard;
+    BufferedImage score0;
+    BufferedImage score1;
+    BufferedImage score2;
+    BufferedImage score3;
+    BufferedImage score4;
+    BufferedImage score5;
+    BufferedImage score6;
+    BufferedImage score7;
+    BufferedImage score8;
+    BufferedImage score9;
+    // vòng lặp
     Timer gameLoop;
     Timer placePipeTimer;
-    boolean gameOver = false;
-    int score = 0;
+    private int score = 0;
+    private String medal;
+    private static Audio audio = new Audio();
 
     //Bird
-    int birdWidth = 45;
-    int birdHeight = 32;
-    int birdX = 200;
-    int birdY = 150;
-    double rotation = 0.0;
     Bird bird;
-
+    
+    private int distanceScore = 0;
     //Pipe
-    int pipeWidth = 66;
-    int pipeHeight = 300;
-    int pipeY = 0;
-    int pipeX = boardWidth;
     ArrayList<Pipe> pipes;
     Random random = new Random();
 
-    //Physics
-    int velocityX = -4;
-    int velocityY = 0;
-    int gravity = 8;
-    int jumpStrength = -10;
+    //font
+    private Font flappyFontBase, flappyFontReal, flappyScoreFont, flappyMiniFont = null;
+    private Point clickedPoint = new Point(-1, -1);
+    
+    //Game State
+    final static int MENU = 0;
+    final static int GAME = 1;
+    private int gameState = MENU;
 
-    public Game() {
+    public Game() throws IOException {
         setFocusable(true);
         setPreferredSize(new Dimension(boardWidth, boardHeight));
         addKeyListener(this);
 
-        birdImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/bird.png")).getImage();
-        birdDieImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/bird.png")).getImage();
-        topPipeImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/pipe-south.png")).getImage();
-        bottomPipeImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/pipe-north.png")).getImage();
-        foregroundImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/foreground.png")).getImage();
-        backgroundImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/background.png")).getImage();
+        try {
+            InputStream is = new BufferedInputStream(new FileInputStream("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\flappy-font.ttf"));
+            flappyFontBase = Font.createFont(Font.TRUETYPE_FONT, is);
 
-        bird = new Bird(birdX, birdY, birdWidth, birdHeight, birdImage);
+            // Header and sub-header fonts
+            flappyScoreFont = flappyFontBase.deriveFont(Font.PLAIN, 50);
+            flappyFontReal = flappyFontBase.deriveFont(Font.PLAIN, 20);
+            flappyMiniFont = flappyFontBase.deriveFont(Font.PLAIN, 15);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        birdImage[0] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird1.png"));
+        birdImage[1] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird2.png"));
+        birdImage[2] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird3.png"));
+        topPipeImage = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\pipe-south.png"));
+        bottomPipeImage = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\pipe-north.png"));
+        foregroundImage = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\foreground.png"));
+        backgroundImage = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\background.png"));
+        restartButton = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\restart.png"));
+        gameOverLabel = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\gameOverText.png"));
+        addToLeaderBoardButton = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\addtoleaderboard.png"));
+        scoreBoard = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\scoreCard.png"));
+        score0 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\0.png"));
+        score1 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\1.png"));
+        score2 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\2.png"));
+        score3 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\3.png"));
+        score4 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\4.png"));
+        score5 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\5.png"));
+        score6 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\6.png"));
+        score7 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\7.png"));
+        score8 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\8.png"));
+        score9 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\9.png"));
+        
+        
+        bird = new Bird(200, 150, birdImage);
         pipes = new ArrayList<>();
 
         placePipeTimer = new Timer(1500, new ActionListener() {
@@ -77,132 +126,186 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         gameLoop = new Timer(1000 / 60, this);
         gameLoop.start();
     }
-
+    
+    @Override
     public void paintComponent(Graphics g) {
-        g.setColor(Color.BLACK);
         super.paintComponent(g);
         draw(g);
+        if(bird.isAlive()){
+            drawScore(g,score);
+        }
     }
 
     public void draw(Graphics g) {
-//
+
         // Vẽ nền và nền đất
-        g.drawImage(backgroundImage, 0, 0, null);
-        g.drawImage(foregroundImage, 0, 0, null); // Đặt vị trí cho foreground nếu cần
-        g.drawImage(birdImage, birdX, birdY, birdWidth, birdHeight, null);
+        g.drawImage(backgroundImage, 0, 0, this);
+        g.drawImage(foregroundImage, 0, 0, this); // Đặt vị trí cho foreground nếu cần
 
         //pipes
         for (int i = 0; i < pipes.size(); i++) {
             Pipe pipe = pipes.get(i);
-            g.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height, null);
+            g.drawImage(pipe.img, pipe.x, pipe.y, pipe.widthPipe, pipe.heightPipe, this);
         }
-        g.drawImage(foregroundImage, 0, 0, null); // Đặt vị trí cho foreground nếu cần
+        g.drawImage(foregroundImage, 0, 0, this); // Đặt vị trí cho foreground nếu cần
 
-        //score
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.setColor(Color.WHITE);
-        g.drawString("Score: " + score, 10, 20);
+        bird.renderBird(g);
 
-        if (gameOver) {
-            g.setFont(new Font("Arial", Font.BOLD, 30));
-            g.setColor(Color.RED);
-            g.drawString("Game Over!", boardWidth / 2 - 80, boardHeight / 2);
-        }
     }
+
+    public void drawMenuGameOver(Graphics g) {
+        g.drawImage(gameOverLabel, 140, 100,200,40, this);
+        g.drawImage(scoreBoard, 140, 100, this);
+        
+    }
+    
+    private boolean isTouching (Rectangle r) {
+		return r.contains(clickedPoint);
+    }
+    
+    public void drawScore(Graphics g, int score) {
+    String scoreString = String.valueOf(score);
+    int xPos = 240; // Vị trí bắt đầu
+    for (int i = 0; i < scoreString.length(); i++) {
+        String digit = String.valueOf(scoreString.charAt(i));
+        BufferedImage digitImage = getDigitImage(digit);  // Hàm lấy ảnh tương ứng với từng chữ số
+        g.drawImage(digitImage, xPos, 40, this);
+        xPos += 15; // Khoảng cách giữa các chữ số
+    }
+}
+
+    private BufferedImage getDigitImage(String digit) {
+        switch (digit) {
+            case "0": return score0;
+            case "1": return score1;
+            case "2": return score2;
+            case "3": return score3;
+            case "4": return score4;
+            case "5": return score5;
+            case "6": return score6;
+            case "7": return score7;
+            case "8": return score8;
+            case "9": return score9;
+            default: return score0; 
+    }
+}
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
         move();
         repaint();
-        if (gameOver) {
-            gameLoop.stop();
-            placePipeTimer.stop();
-        }
     }
 
     public void move() {
-        if (!gameOver) {
-            velocityY += gravity;
-            birdY += velocityY;
-            bird.y = birdY;  // Cập nhật bird.y theo birdY
-            if (birdY >= 370) { // Kiểm tra nếu chim chạm đáy
-                birdY = 370; // Cố định vị trí khi chạm nền
-                gameOver = true; // Đặt game over nhưng không thay đổi gravity hay velocity
-                bird.img = birdDieImage;
-            }
-        }
-        for (int i = 0; i < pipes.size(); i++) {
-            Pipe pipe = pipes.get(i);
-            pipe.x += velocityX;
+        if (bird.isAlive()) {
+            bird.velocityY += bird.gravity;
+            bird.yBird += bird.velocityY;
 
-            if (!pipe.passed && bird.x > pipe.x + pipe.width) {
-                score += 1;
-                pipe.passed = true;
+            if (bird.yBird >= 385) { // Kiểm tra nếu chim chạm đáy
+                bird.yBird = 385;
+                bird.kill();// Cố định vị trí khi chạm nền
+                audio.hit();
+                gameLoop.stop();
+                placePipeTimer.stop();
+                
+
             }
 
-            if (collision(bird, pipe)) {
-                gameOver = true;
+            for (int i = 0; i < pipes.size(); i++) {
+                Pipe pipe = pipes.get(i);
+                pipe.movePipe();
+
+                if (!pipe.passed && bird.xBird > pipe.x + pipe.widthPipe && pipe.img == topPipeImage) {
+                    if(!pipe.passed){
+                    score += 1;
+                    pipe.passed = true;
+                    audio.point();
+                    }
+                }
+
+                if (collision(bird, pipe)) {
+                    bird.kill();
+                    audio.hit();
+
+                    if (bird.yBird >= 385) {
+                        gameLoop.stop();
+                        placePipeTimer.stop();
+                    }
+                }
             }
         }
     }
 
     public void placePipes() {
-        int randomPipeY = (int) (pipeY - pipeHeight / 4 - Math.random() * (pipeHeight / 2));
+        int randomPipeY = (int) (0 - Pipe.heightPipe / 4 - Math.random() * (Pipe.heightPipe / 2));
         int openingSpace = boardHeight / 4;
 
-        Pipe topPipe = new Pipe(pipeX, pipeY, pipeWidth, pipeHeight, topPipeImage);
+        Pipe topPipe = new Pipe(500, 0, topPipeImage);
         topPipe.y = randomPipeY;
         pipes.add(topPipe);
 
-        Pipe bottomPipe = new Pipe(pipeX, pipeY, pipeWidth, pipeHeight, bottomPipeImage);
-        bottomPipe.y = topPipe.y + pipeHeight + openingSpace;
+        Pipe bottomPipe = new Pipe(500, 0, bottomPipeImage);
+        bottomPipe.y = topPipe.y + Pipe.heightPipe + openingSpace;
         pipes.add(bottomPipe);
     }
 
     public void resetGame() {
-        birdX = 200;           // Đặt lại vị trí X của con chim
-        birdY = 150;           // Đặt lại vị trí Y của con chim
-        velocityY = 0;
+        bird.xBird = 200;           // Đặt lại vị trí X của con chim
+        bird.yBird = 150;           // Đặt lại vị trí Y của con chim
+        bird.velocityY = 0;
+        bird.reHealth();
         pipes.clear();// Đặt lại vận tốc Y
-        gravity = 1;           // Đặt lại trọng lực (nếu có thay đổi)
-        gameOver = false;      // Đặt lại trạng thái gameOver
-        bird.img = birdImage;
-        score=0;// Đặt lại hình ảnh của chim
+        bird.gravity = 1;
+        score = 0;// Đặt lại hình ảnh của chim
         repaint();             // Vẽ lại màn hình để làm mới giao diện
         gameLoop.start();
         placePipeTimer.start();
-        // Khởi động lại vòng lặp trò chơi
     }
 
     boolean collision(Bird a, Pipe b) {
-        return a.x< b.x + b.width
+        if (a.xBird > b.x && a.yBird < 0) {
+            return true;
+        }
+        return a.xBird < b.x + b.widthPipe
                 && //a's top left corner doesn't reach b's top right corner
-                a.x + a.width > b.x
+                a.xBird + a.widthBird > b.x
                 && //a's top right corner passes b's top left corner
-                a.y < b.y + b.height
+                a.yBird < b.y + b.heightPipe
                 && //a's top left corner doesn't reach b's bottom left corner
-                a.y + a.height > b.y;    //a's bottom left corner passes b's top left corner
-    }
-    
-    
-    
-    @Override
-    public void keyTyped(KeyEvent e) {
+                a.yBird + a.heightBird > b.y;    //a's bottom left corner passes b's top left corner
     }
 
-    @Override
+    //Key Action
+    public void keyTyped(KeyEvent e) {}
+    public void keyReleased(KeyEvent e) {}
+
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            if (!gameOver) {
-                velocityY = jumpStrength;  // Tạo hiệu ứng nhảy khi game chưa kết thúc
+            if (bird.isAlive()) {
+                audio.jump();
+                bird.velocityY = bird.jumpStrength;  // Tạo hiệu ứng nhảy khi game chưa kết thúc
             } else {
                 resetGame();  // Khởi động lại trò chơi khi game đã kết thúc
             }
         }
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
+    // Mosuse Action
+    public void mouseClicked(MouseEvent e) {}
+
+    public void mouseReleased(MouseEvent e) {}
+
+    public void mouseEntered(MouseEvent e) {}
+
+    public void mouseExited(MouseEvent e) {}
+
+    public void mousePressed(MouseEvent e) {
+        clickedPoint = e.getPoint();
+        if(bird.isAlive()){
+            audio.jump();
+            bird.velocityY = bird.jumpStrength;
+        }
     }
-    
+
 }
