@@ -23,4 +23,4 @@ Nếu bạn đã từng chơi FlappyBird, bạn sẽ cảm thấy quen thuộc v
 - Người chơi cũng có thể tạm dừng trò chơi để chơi một ván mới.
 
 ## Mô tả chi tiết về project
-[UML](https://app.diagrams.net/#G1GAJNtF1E3J_i8IEcovJp5nCJcoSa4Qbx#%7B%22pageId%22%3A%22b5b7bab2-c9e2-2cf4-8b2a-24fd1a2a6d21%22%7D)
+[UML](https://drive.google.com/file/d/1aseqcVFCWCoXdLN3t53kkngUyQbmYFFy/view?usp=sharing)
