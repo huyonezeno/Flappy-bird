@@ -1,0 +1,10 @@
+hhhh 6
+huybui 4
+Player1 0
+Player2 0
+Player3 0
+Player4 0
+Player5 0
+Player6 0
+Player7 0
+Player8 0
