@@ -1,4 +1,4 @@
-package javaapplication11;
+package GameObject;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -18,9 +18,11 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
-public class Game extends JPanel implements ActionListener, KeyListener, MouseListener {
+public class Game extends JPanel implements ActionListener, KeyListener {
 
     // kích thước của JPanel
     int boardWidth = 500;
@@ -50,49 +52,42 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     BufferedImage sliverMedal;
     BufferedImage bronzeMedal;
     BufferedImage platiumMedal;
-    // vòng lặp
+
+    // vòng lặp thời gian của game
     Timer gameLoop;
     Timer placePipeTimer;
+
+    // thống kế điểm
     private int score = 0;
     private int bestScore = 0;
-    private String medal;
+   
+    // khai báo âm thanh trong game
     private static Audio audio = new Audio();
 
     //Bird
     Bird bird;
     
-    private int distanceScore = 0;
+    // khai báo màn hình game khi trò chơi kết thúc
+    private GameOverScreen gameOverScreen;
+
     //Pipe
     ArrayList<Pipe> pipes;
     Random random = new Random();
-
-    //font
-    private Font flappyFontBase, flappyFontReal, flappyScoreFont, flappyMiniFont = null;
-    private Point clickedPoint = new Point(-1, -1);
     
     //Game State
-    final static int MENU = 0;
+    final static int START = 0;
     final static int GAME = 1;
-    private int gameState = MENU;
+    private int gameState = START;
 
-    public Game() throws IOException {
+    public Game(int BestScore) throws IOException {
         setFocusable(true);
         setPreferredSize(new Dimension(boardWidth, boardHeight));
         addKeyListener(this);
 
-        try {
-            InputStream is = new BufferedInputStream(new FileInputStream("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\flappy-font.ttf"));
-            flappyFontBase = Font.createFont(Font.TRUETYPE_FONT, is);
+        // lưu điểm tốt nhất từ màn trước đó khi thwucj hiện chơi lại
+        this.bestScore = BestScore;
 
-            // Header and sub-header fonts
-            flappyScoreFont = flappyFontBase.deriveFont(Font.PLAIN, 50);
-            flappyFontReal = flappyFontBase.deriveFont(Font.PLAIN, 20);
-            flappyMiniFont = flappyFontBase.deriveFont(Font.PLAIN, 15);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
- 
+        // Load ảnh
         birdImage[0] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird1.png"));
         birdImage[1] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird2.png"));
         birdImage[2] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird3.png"));
@@ -122,6 +117,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         bird = new Bird(200, 150, birdImage);
         pipes = new ArrayList<>();
 
+        // sau 1,5 giây sẽ tạo 1 cặp ống mới
         placePipeTimer = new Timer(1500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,6 +127,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         });
         placePipeTimer.start();
 
+        // Tạo vòng lặp thời gian cho game ở mứcc 60 khung hình trên giây
         gameLoop = new Timer(1000 / 60, this);
         gameLoop.start();
     }
@@ -139,8 +136,18 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         draw(g);
-        if(bird.isAlive()){
+        if(bird.isAlive()){ // vẽ điểm trong thời gian thực nếu con chim còn sống
             drawScore(g,score,240,40);
+        }else{
+            try {
+                this.gameOverScreen = new GameOverScreen(this.score,this.bestScore);
+            } catch (IOException ex) {
+                Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.gameOverScreen.setVisible(true);
+            revalidate();// thực hiện bố trị lại các thành phần trong panel
+            repaint();// vẽ lại giao diện người dùng
+            add(gameOverScreen);
         }
     }
 
@@ -150,45 +157,18 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawImage(backgroundImage, 0, 0, this);
         g.drawImage(foregroundImage, 0, 0, this); // Đặt vị trí cho foreground nếu cần
 
-        //pipes
+        //vẽ các ống
         for (int i = 0; i < pipes.size(); i++) {
             Pipe pipe = pipes.get(i);
             g.drawImage(pipe.img, pipe.x, pipe.y, pipe.widthPipe, pipe.heightPipe, this);
         }
         g.drawImage(foregroundImage, 0, 0, this); // Đặt vị trí cho foreground nếu cần
 
+        // vẽ Bird
         bird.renderBird(g);
-        
-        if(!bird.isAlive()){
-            drawMenuGameOver(g);
-            
-        }
-    }
-
-    public void drawMenuGameOver(Graphics g){
-        g.drawImage(gameOverLabel, 150, 100,200,40, this);
-        g.drawImage(scoreBoard, 130,170,250,150, this);
-        if(score>bestScore){
-            bestScore = score;
-        }
-        if(score >= 10){
-            g.drawImage(goldMedal,MENU , MENU, this);
-        }else if(score >=20){
-            g.drawImage(sliverMedal, MENU, MENU, this);
-        }else if(score >= 30){
-            g.drawImage(bronzeMedal, MENU, MENU, this);
-        }else if(score >= 40){
-            g.drawImage(platiumMedal, MENU, MENU, this);
-        }
-        g.drawImage(restartButton, 130, 350,91,32, this);
-        g.drawImage(addToLeaderBoardButton, 250, 350,130,32, this);
-        
-        
-    }
-    private boolean isTouching (Rectangle r) {
-		return r.contains(clickedPoint);
     }
     
+    // vẽ điểm số với các ảnh chữ số cho trước
     public void drawScore(Graphics g, int score,int x, int y) {
     String scoreString = String.valueOf(score);
     for (int i = 0; i < scoreString.length(); i++) {
@@ -198,7 +178,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         x += 15; // Khoảng cách giữa các chữ số
     }
 }
-
+    //phân tích điểm để lấy ảnh tương ứng
     private BufferedImage getDigitImage(String digit) {
         switch (digit) {
             case "0": return score0;
@@ -215,13 +195,14 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 }
 
-
+    // phương thức được gọi sau mỗi 1 chu kì 1000/60 giây để tạo chuyển động mượt mà
     @Override
     public void actionPerformed(ActionEvent e) {
         move();
         repaint();
     }
 
+    // phương thức để di chuyển đối tượng Bird và các cột trong game
     public void move() {
         if (bird.isAlive()) {
             bird.velocityY += bird.gravity;
@@ -262,6 +243,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         }
     }
 
+    // thiết lập vị trí của ống
     public void placePipes() {
         int randomPipeY = (int) (0 - Pipe.heightPipe / 4 - Math.random() * (Pipe.heightPipe / 2));
         int openingSpace = boardHeight / 4;
@@ -275,21 +257,24 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         pipes.add(bottomPipe);
     }
 
+    //reset game khi game kết thúc
     public void resetGame() {
         bird.xBird = 200;           // Đặt lại vị trí X của con chim
         bird.yBird = 150;           // Đặt lại vị trí Y của con chim
-        bird.velocityY = 0;
-        bird.reHealth();
-        pipes.clear();// Đặt lại vận tốc Y
-        bird.gravity = 1;
+        bird.velocityY = 0;         // Đặt lại vận tốc Y
+        bird.reHealth();            // Đặt lại trạng thái sống của con chim
+        pipes.clear();              // Xóa các ống
+        bird.gravity = 1;           // Đặt lại gia tốc
         score = 0;// Đặt lại hình ảnh của chim
         repaint();             // Vẽ lại màn hình để làm mới giao diện
-        gameLoop.start();
-        placePipeTimer.start();
+        gameLoop.start();       // Bắt đầu vòng lặp game
+        placePipeTimer.start();     // Bắt đầu vòng lặp tạo ống
+
     }
 
+    // điều kiện va chạm
     boolean collision(Bird a, Pipe b) {
-        if (a.xBird > b.x && a.yBird < 0) {
+        if (a.xBird > b.x && a.yBird < 0) { // không cho chim bay quá
             return true;
         }
         return a.xBird < b.x + b.widthPipe
@@ -301,27 +286,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 a.yBird + a.heightBird > b.y;    //a's bottom left corner passes b's top left corner
     }
     
-    private boolean isClickOnRestartButton(Point point) {
-    // Vị trí và kích thước của nút restart
-        int restartButtonX = 130;
-        int restartButtonY = 350;
-        int restartButtonWidth = 92;
-        int restartButtonHeight = 31;
 
-        return point.x >= restartButtonX && point.x <= restartButtonX + restartButtonWidth
-            && point.y >= restartButtonY && point.y <= restartButtonY + restartButtonHeight;
-    }
-    
-    private boolean isClickOnAddToLeaderBoardButton(Point point){
-        int addtoleaderboardButtonX = 200;
-        int addtoleaderboardButtonY = 400;
-        int addtoleaderboardButtonWidth = 120;
-        int addtoleaderboardButtonHeight = 40;
-
-        return point.x >= addtoleaderboardButtonX && point.x <= addtoleaderboardButtonX + addtoleaderboardButtonWidth
-            && point.y >= addtoleaderboardButtonY && point.y <= addtoleaderboardButtonY + addtoleaderboardButtonHeight;
-    }
-    //Key Action
+    //hành động cho Bird bay lên khi nhấn phím space
     public void keyTyped(KeyEvent e) {}
     public void keyReleased(KeyEvent e) {}
 
@@ -330,32 +296,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             if (bird.isAlive()) {
                 audio.jump();
                 bird.velocityY = bird.jumpStrength;  // Tạo hiệu ứng nhảy khi game chưa kết thúc
-            } else {
-                resetGame();  // Khởi động lại trò chơi khi game đã kết thúc
-            }
-        }
-    }
-
-    // Mosuse Action
-    public void mouseClicked(MouseEvent e) {}
-
-    public void mouseReleased(MouseEvent e) {}
-
-    public void mouseEntered(MouseEvent e) {}
-
-    public void mouseExited(MouseEvent e) {}
-
-    public void mousePressed(MouseEvent e) {
-        clickedPoint = e.getPoint();
-        if(bird.isAlive()){
-            audio.jump();
-            bird.velocityY = bird.jumpStrength;
-        }else{
-            if(isClickOnRestartButton(clickedPoint)){
-                  resetGame();
-            }
-            if(isClickOnAddToLeaderBoardButton(clickedPoint)){
-                
             }
         }
     }

@@ -1,4 +1,4 @@
-package javaapplication11;
+package GameObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 
 public class GameOverScreen extends JPanel {
     private int score;
-    private int bestScore;
+    private int bestScore ;
     Image foregroundImage;
     Image backgroundImage;
     Image gameover;
@@ -26,7 +26,7 @@ public class GameOverScreen extends JPanel {
     BufferedImage score7;
     BufferedImage score8;
     BufferedImage score9;
-    private LeaderBoard leaderBoard;
+    private LeaderBoard leaderBoard = new LeaderBoard();
     private TextField nameText;
     private JPanel addLeaderBoardPanel;
     private JFrame addLeaderBoardFrame;
@@ -37,7 +37,7 @@ public class GameOverScreen extends JPanel {
     Image bronze;
     Image platinum;
     
-    public GameOverScreen(int score, int bestScore) throws IOException {
+    public GameOverScreen(int score,int bestScore) throws IOException {
         this.score = score;
         this.bestScore = bestScore;
         setPreferredSize(new Dimension(500, 500)); // kích thước khung chung
@@ -49,7 +49,7 @@ public class GameOverScreen extends JPanel {
         setLayout(null);
 
         // Tải ảnh bảng điểm
-        scoreboardImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/scoreCard.png")).getImage();
+        scoreboardImage = new ImageIcon(getClass().getResource("/resources/scoreCard.png")).getImage();
         score0 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\0.png"));
         score1 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\1.png"));
         score2 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\2.png"));
@@ -62,13 +62,13 @@ public class GameOverScreen extends JPanel {
         score9 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\9.png"));
         
         // Tải ảnh huân chương//
-        gold = new ImageIcon(getClass().getResource("/javaapplication11/resources/gold.png")).getImage();
-        silver = new ImageIcon(getClass().getResource("/javaapplication11/resources/silver.png")).getImage();
-        bronze = new ImageIcon(getClass().getResource("/javaapplication11/resources/bronze.png")).getImage();
-        platinum = new ImageIcon(getClass().getResource("/javaapplication11/resources/platinum.png")).getImage();
+        gold = new ImageIcon(getClass().getResource("/resources/gold.png")).getImage();
+        silver = new ImageIcon(getClass().getResource("/resources/silver.png")).getImage();
+        bronze = new ImageIcon(getClass().getResource("/resources/bronze.png")).getImage();
+        platinum = new ImageIcon(getClass().getResource("/resources/platinum.png")).getImage();
        
         /*Nút chơi lại*/
-        ImageIcon restartIcon = new ImageIcon(getClass().getResource("/javaapplication11/resources/playbutton.png"));
+        ImageIcon restartIcon = new ImageIcon(getClass().getResource("/resources/playbutton.png"));
         Image restartImg = restartIcon.getImage().getScaledInstance(91, 45, Image.SCALE_SMOOTH);
         JButton restartButton = new JButton(new ImageIcon(restartImg));
         restartButton.setBounds(110, 290, 91, 45);
@@ -83,8 +83,11 @@ public class GameOverScreen extends JPanel {
             }
             // Tạo và hiển thị StartScreen mới
             JFrame newFrame = new JFrame("Flappy Bird");
+            if(score > bestScore) {
+                bestScore = score;
+            }
             try {
-                Game startScreen = new Game(); // Khởi tạo màn hình mới
+                Game startScreen = new Game(bestScore); // Khởi tạo màn hình mới
                 newFrame.add(startScreen);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -99,7 +102,7 @@ public class GameOverScreen extends JPanel {
 
         
         /*Nút xem bảng điểm*/
-        ImageIcon leaderboardIcon = new ImageIcon(getClass().getResource("/javaapplication11/resources/leaderboardbutton.png"));
+        ImageIcon leaderboardIcon = new ImageIcon(getClass().getResource("/resources/leaderboardbutton.png"));
         Image leaderboardImg = leaderboardIcon.getImage().getScaledInstance(91,45, Image.SCALE_SMOOTH);
         JButton leaderboardButton = new JButton(new ImageIcon(leaderboardImg));
         leaderboardButton.setBounds(290, 290, 91,45 );
@@ -125,7 +128,7 @@ public class GameOverScreen extends JPanel {
         
         
         /*Nút thêm vào bảng xếp hạng*/
-        ImageIcon addtoleaderboardIcon = new ImageIcon(getClass().getResource("/javaapplication11/resources/addtoleaderboard.png"));
+        ImageIcon addtoleaderboardIcon = new ImageIcon(getClass().getResource("/resources/addtoleaderboard.png"));
         Image addtoleaderboardImg = addtoleaderboardIcon.getImage().getScaledInstance(130, 32, Image.SCALE_SMOOTH);
         JButton addtoleaderboardButton = new JButton(new ImageIcon(addtoleaderboardImg));
         addtoleaderboardButton.setBounds(180, 340, 130, 32);
@@ -213,7 +216,7 @@ public class GameOverScreen extends JPanel {
         super.paintComponent(g);
 
         // Vẽ nền (như các class trên chỉ thêm mỗi gameOver và scoreboardImage)
-        gameover = new ImageIcon(getClass().getResource("/javaapplication11/resources/gameOverText.png")).getImage();
+        gameover = new ImageIcon(getClass().getResource("/resources/gameOverText.png")).getImage();
 
         // Vẽ chữ "Game Over
         g.drawImage(gameover, 150, 60, 200, 40, null);
@@ -237,13 +240,17 @@ public class GameOverScreen extends JPanel {
         if (medalImage != null) {
             g.drawImage(medalImage, 135,185 , 57, 57, null);
         }
-        
+        // nếu score hiện tại cao hơn bestScore thì cập nhật bestScore
+        if(score > bestScore) {
+            bestScore = score;
+        }
         //vẽ score và bestscore
         drawScore(g, score, 330, 175);
         drawScore(g, bestScore, 330, 230);
         
     }
-    
+
+    // vẽ ảnh điểm trên scoreBoard
     public void drawScore(Graphics g, int score,int x, int y) {
     String scoreString = String.valueOf(score);
     for (int i = 0; i < scoreString.length(); i++) {
@@ -253,7 +260,7 @@ public class GameOverScreen extends JPanel {
         x += 10; // Khoảng cách giữa các chữ số
     }
 }
-
+    // Hàm lấy ảnh tương ứng với từng chữ số    
     private BufferedImage getDigitImage(String digit) {
         switch (digit) {
             case "0": return score0;
@@ -269,6 +276,7 @@ public class GameOverScreen extends JPanel {
             default: return score0; 
     }
 }
+    // Hàm tạo textField để nhập tên và thêm vào LeaderBoard
     public void setTextField() {
         // Thêm textField vào frame moi
             JFrame addLeaderBoardFrame = new JFrame();
@@ -282,12 +290,12 @@ public class GameOverScreen extends JPanel {
             this.addLeaderBoardPanel.setSize(300, 200);
             this.addLeaderBoardPanel.add(new JLabel("Enter your name:"));
             this.addLeaderBoardPanel.add(this.nameText);
-            //them nut submit
+            //thêm nút submit
             JButton submitButton = new JButton("Submit");
             this.addLeaderBoardPanel.add(submitButton);
 
             addLeaderBoardFrame.add(this.addLeaderBoardPanel);
-        //khi nhan nut submit thi them vao leader board dong thoi mo ra 1 label thong bao
+        //khi nhấn nút submit thì thêm vào leader board dồng thời mở ra 1 label thông báo
             submitButton.addActionListener(e -> {
                 String name = nameText.getText();
                 if (name.length() > 0) {
@@ -302,10 +310,11 @@ public class GameOverScreen extends JPanel {
                 
             });
 
+        // cấu hình cho panel 
         this.addLeaderBoardPanel.setOpaque(false);
-        addLeaderBoardFrame.pack();
-        addLeaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        addLeaderBoardFrame.setVisible(true);
+        addLeaderBoardFrame.pack(); 
+        addLeaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);  
+        addLeaderBoardFrame.setVisible(true);  
     }
 
 }

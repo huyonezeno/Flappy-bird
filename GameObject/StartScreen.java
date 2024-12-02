@@ -1,4 +1,4 @@
-package javaapplication11;
+package GameObject;
 
 import java.awt.*;
 import java.io.IOException;
@@ -20,14 +20,14 @@ public class StartScreen extends JPanel {
 
 
     public StartScreen() {
-        //tao size cho panel
+        //tạo size cho panel
         setFocusable(true);
         setSize(500, 500);
         setPreferredSize(new Dimension(500, 500));
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        // tao icon cho frame
-        ImageIcon icon = new ImageIcon(getClass().getResource("/javaapplication11/resources/titleText.png"));
+        // tạo tiêu đề cho frame
+        ImageIcon icon = new ImageIcon(getClass().getResource("/resources/titleText.png"));
         JLabel label = new JLabel(icon);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(label, BorderLayout.EAST);
@@ -36,15 +36,15 @@ public class StartScreen extends JPanel {
 
         add(buttonPanel);
 
-        //thuc hien action khi click vao button start
+        //xử lí sự kiện  khi click vào button start
         startButton.addActionListener(e -> {
             try {
-                this.game = new Game();
+                this.game = new Game(0);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
 
-            // lay frame hien tai
+            // lấy frame hiện tại
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
             buttonPanel.setVisible(false);
             frame.add(game);
@@ -52,14 +52,17 @@ public class StartScreen extends JPanel {
             game.requestFocus();
         });
 
-        //thuc hien action khi click vao button leaderboard
+        //xử lí sự kiện khi click vào button leaderboard
         leaderBoardButton.addActionListener(e -> {
             this.leaderBoard = new LeaderBoard();
-            // lay frame hien tai
+
+            // tạo frame mới để hiển thị leader board
             JFrame leaderBoardFrame = new JFrame();
-            //tao size
+
+            //tạo size cho frame mới khi ấn vào leaderboard button
             leaderBoardFrame.setPreferredSize(new Dimension(400, 450));
-            //add leaderBoard vao frame va cai dat 1 so thuoc tinh
+            
+
             leaderBoardFrame.add(leaderBoard);
             leaderBoardFrame.pack();
             leaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -70,44 +73,45 @@ public class StartScreen extends JPanel {
     }
 
     public void setButtonPanel() {
-        //tao panel moi cho button panel
+        //tạo panel mới cho button panel
         this.buttonPanel = new JPanel();
         this.buttonPanel.setLayout(new GridLayout(1, 2));
 
-        //tao button start
-        this.startButton = createImageButton("/javaapplication11/resources/playbutton.png");
+        //tạo button start
+        this.startButton = createImageButton("/resources/playbutton.png");
         
-        //add button vao panel
+        //thêm button vào panel
         buttonPanel.add(this.startButton);
 
-        //tao button leaderboard
-        this.leaderBoardButton = createImageButton("/javaapplication11/resources/leaderboardbutton.png");
+        //tạo button leaderboard
+        this.leaderBoardButton = createImageButton("/resources/leaderboardbutton.png");
         
-        //add button vao panel
+        //thêm button vào panel
         this.buttonPanel.add(this.leaderBoardButton);
         this.buttonPanel.setOpaque(false);
     }
 
     @Override
     public void paintComponent(Graphics g) {
-        //tao background va foreground cho panel
-        backgroundImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/background.png")).getImage();
-        foregroundImage = new ImageIcon(getClass().getResource("/javaapplication11/resources/foreground.png")).getImage();
-        //ve background va foreground
+        //vẽ background và foreground cho panel
+        backgroundImage = new ImageIcon(getClass().getResource("/resources/background.png")).getImage();
+        foregroundImage = new ImageIcon(getClass().getResource("/resources/foreground.png")).getImage();
         super.paintComponent(g);
         g.drawImage(backgroundImage, 0, 0, null);
         g.drawImage(foregroundImage, 0, 0, null);
     }
 
     private JButton createImageButton(String imagePath) {
-        // tao button voi icon khong chua vien mac dinh cua nut
+        // tạo button không chứa viền của button
         JButton button = new JButton();
         try {
             // Tạo ImageIcon từ đường dẫn hình ảnh
             ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
+
             // Set icon cho button
             button.setIcon(icon);
-            // Loại bỏ viền mac dinh nút
+
+            // Loại bỏ viền mặc định của nút khi click
             button.setBorderPainted(false);
             button.setContentAreaFilled(false);
             button.setFocusPainted(false);
