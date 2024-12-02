@@ -46,10 +46,15 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     BufferedImage score7;
     BufferedImage score8;
     BufferedImage score9;
+    BufferedImage goldMedal;
+    BufferedImage sliverMedal;
+    BufferedImage bronzeMedal;
+    BufferedImage platiumMedal;
     // vòng lặp
     Timer gameLoop;
     Timer placePipeTimer;
     private int score = 0;
+    private int bestScore = 0;
     private String medal;
     private static Audio audio = new Audio();
 
@@ -87,7 +92,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
+ 
         birdImage[0] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird1.png"));
         birdImage[1] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird2.png"));
         birdImage[2] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird3.png"));
@@ -109,7 +114,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         score7 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\7.png"));
         score8 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\8.png"));
         score9 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\9.png"));
-        
+        goldMedal = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\gold.png"));
+        sliverMedal = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\silver.png"));
+        bronzeMedal = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\bronze.png"));
+        platiumMedal = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\platinum.png"));
         
         bird = new Bird(200, 150, birdImage);
         pipes = new ArrayList<>();
@@ -132,7 +140,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         super.paintComponent(g);
         draw(g);
         if(bird.isAlive()){
-            drawScore(g,score);
+            drawScore(g,score,240,40);
         }
     }
 
@@ -150,27 +158,44 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawImage(foregroundImage, 0, 0, this); // Đặt vị trí cho foreground nếu cần
 
         bird.renderBird(g);
-
+        
+        if(!bird.isAlive()){
+            drawMenuGameOver(g);
+            
+        }
     }
 
-    public void drawMenuGameOver(Graphics g) {
-        g.drawImage(gameOverLabel, 140, 100,200,40, this);
-        g.drawImage(scoreBoard, 140, 100, this);
+    public void drawMenuGameOver(Graphics g){
+        g.drawImage(gameOverLabel, 150, 100,200,40, this);
+        g.drawImage(scoreBoard, 130,170,250,150, this);
+        if(score>bestScore){
+            bestScore = score;
+        }
+        if(score >= 10){
+            g.drawImage(goldMedal,MENU , MENU, this);
+        }else if(score >=20){
+            g.drawImage(sliverMedal, MENU, MENU, this);
+        }else if(score >= 30){
+            g.drawImage(bronzeMedal, MENU, MENU, this);
+        }else if(score >= 40){
+            g.drawImage(platiumMedal, MENU, MENU, this);
+        }
+        g.drawImage(restartButton, 130, 350,91,32, this);
+        g.drawImage(addToLeaderBoardButton, 250, 350,130,32, this);
+        
         
     }
-    
     private boolean isTouching (Rectangle r) {
 		return r.contains(clickedPoint);
     }
     
-    public void drawScore(Graphics g, int score) {
+    public void drawScore(Graphics g, int score,int x, int y) {
     String scoreString = String.valueOf(score);
-    int xPos = 240; // Vị trí bắt đầu
     for (int i = 0; i < scoreString.length(); i++) {
         String digit = String.valueOf(scoreString.charAt(i));
         BufferedImage digitImage = getDigitImage(digit);  // Hàm lấy ảnh tương ứng với từng chữ số
-        g.drawImage(digitImage, xPos, 40, this);
-        xPos += 15; // Khoảng cách giữa các chữ số
+        g.drawImage(digitImage, x, y, this);
+        x += 15; // Khoảng cách giữa các chữ số
     }
 }
 
@@ -275,7 +300,27 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 && //a's top left corner doesn't reach b's bottom left corner
                 a.yBird + a.heightBird > b.y;    //a's bottom left corner passes b's top left corner
     }
+    
+    private boolean isClickOnRestartButton(Point point) {
+    // Vị trí và kích thước của nút restart
+        int restartButtonX = 130;
+        int restartButtonY = 350;
+        int restartButtonWidth = 92;
+        int restartButtonHeight = 31;
 
+        return point.x >= restartButtonX && point.x <= restartButtonX + restartButtonWidth
+            && point.y >= restartButtonY && point.y <= restartButtonY + restartButtonHeight;
+    }
+    
+    private boolean isClickOnAddToLeaderBoardButton(Point point){
+        int addtoleaderboardButtonX = 200;
+        int addtoleaderboardButtonY = 400;
+        int addtoleaderboardButtonWidth = 120;
+        int addtoleaderboardButtonHeight = 40;
+
+        return point.x >= addtoleaderboardButtonX && point.x <= addtoleaderboardButtonX + addtoleaderboardButtonWidth
+            && point.y >= addtoleaderboardButtonY && point.y <= addtoleaderboardButtonY + addtoleaderboardButtonHeight;
+    }
     //Key Action
     public void keyTyped(KeyEvent e) {}
     public void keyReleased(KeyEvent e) {}
@@ -305,6 +350,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         if(bird.isAlive()){
             audio.jump();
             bird.velocityY = bird.jumpStrength;
+        }else{
+            if(isClickOnRestartButton(clickedPoint)){
+                  resetGame();
+            }
+            if(isClickOnAddToLeaderBoardButton(clickedPoint)){
+                
+            }
         }
     }
 
