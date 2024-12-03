@@ -2,10 +2,20 @@ package GameObject;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.event.KeyEvent.*;
 import javax.swing.*;
 import java.util.Random;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.io.InputStream;
 import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.awt.image.BufferedImage;
+import java.util.Calendar;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -13,6 +23,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
+
     // kích thước của JPanel
     int boardWidth = 500;
     int boardHeight = 500;
@@ -27,13 +38,20 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     BufferedImage restartButton;
     BufferedImage addToLeaderBoardButton;
     BufferedImage scoreBoard;
-    BufferedImage [] scoreNums = new BufferedImage[10];
+    BufferedImage score0;
+    BufferedImage score1;
+    BufferedImage score2;
+    BufferedImage score3;
+    BufferedImage score4;
+    BufferedImage score5;
+    BufferedImage score6;
+    BufferedImage score7;
+    BufferedImage score8;
+    BufferedImage score9;
     BufferedImage goldMedal;
     BufferedImage sliverMedal;
     BufferedImage bronzeMedal;
     BufferedImage platiumMedal;
-
-    String pathToResouce = "D:\\sourceCode\\Flappy-bird-main\\res\\";
 
     // vòng lặp thời gian của game
     Timer gameLoop;
@@ -59,6 +77,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     //Game State
     final static int START = 0;
     final static int GAME = 1;
+    private int gameState = START;
 
     public Game(int BestScore) throws IOException {
         setFocusable(true);
@@ -69,24 +88,31 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.bestScore = BestScore;
 
         // Load ảnh
-        birdImage[0] = ImageIO.read(new File(pathToResouce + "yellowBird1.png"));
-        birdImage[1] = ImageIO.read(new File(pathToResouce + "yellowBird2.png"));
-        birdImage[2] = ImageIO.read(new File(pathToResouce + "yellowBird3.png"));
-        topPipeImage = ImageIO.read(new File(pathToResouce + "pipe-south.png"));
-        bottomPipeImage = ImageIO.read(new File(pathToResouce + "pipe-north.png"));
-        foregroundImage = ImageIO.read(new File(pathToResouce + "foreground.png"));
-        backgroundImage = ImageIO.read(new File(pathToResouce + "background.png"));
-        restartButton = ImageIO.read(new File(pathToResouce + "restart.png"));
-        gameOverLabel = ImageIO.read(new File(pathToResouce + "gameOverText.png"));
-        addToLeaderBoardButton = ImageIO.read(new File(pathToResouce + "addtoleaderboard.png"));
-        scoreBoard = ImageIO.read(new File(pathToResouce + "scoreCard.png"));
-        for(int i = 0; i < 10; i++) {
-            scoreNums[i] = ImageIO.read(new File(pathToResouce + i + ".png"));
-        }
-        goldMedal = ImageIO.read(new File(pathToResouce + "gold.png"));
-        sliverMedal = ImageIO.read(new File(pathToResouce + "silver.png"));
-        bronzeMedal = ImageIO.read(new File(pathToResouce + "bronze.png"));
-        platiumMedal = ImageIO.read(new File(pathToResouce + "platinum.png"));
+        birdImage[0] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird1.png"));
+        birdImage[1] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird2.png"));
+        birdImage[2] = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\yellowBird3.png"));
+        topPipeImage = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\pipe-south.png"));
+        bottomPipeImage = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\pipe-north.png"));
+        foregroundImage = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\foreground.png"));
+        backgroundImage = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\background.png"));
+        restartButton = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\restart.png"));
+        gameOverLabel = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\gameOverText.png"));
+        addToLeaderBoardButton = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\addtoleaderboard.png"));
+        scoreBoard = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\scoreCard.png"));
+        score0 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\0.png"));
+        score1 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\1.png"));
+        score2 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\2.png"));
+        score3 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\3.png"));
+        score4 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\4.png"));
+        score5 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\5.png"));
+        score6 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\6.png"));
+        score7 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\7.png"));
+        score8 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\8.png"));
+        score9 = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\9.png"));
+        goldMedal = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\gold.png"));
+        sliverMedal = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\silver.png"));
+        bronzeMedal = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\bronze.png"));
+        platiumMedal = ImageIO.read(new File("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\resources\\platinum.png"));
         
         bird = new Bird(200, 150, birdImage);
         pipes = new ArrayList<>();
@@ -116,7 +142,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             try {
                 this.gameOverScreen = new GameOverScreen(this.score,this.bestScore);
             } catch (IOException ex) {
-                Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Error: " + ex);
             }
             this.gameOverScreen.setVisible(true);
             revalidate();// thực hiện bố trị lại các thành phần trong panel
@@ -154,8 +180,20 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 }
     //phân tích điểm để lấy ảnh tương ứng
     private BufferedImage getDigitImage(String digit) {
-        return scoreNums[Integer.parseInt(digit)];
+        switch (digit) {
+            case "0": return score0;
+            case "1": return score1;
+            case "2": return score2;
+            case "3": return score3;
+            case "4": return score4;
+            case "5": return score5;
+            case "6": return score6;
+            case "7": return score7;
+            case "8": return score8;
+            case "9": return score9;
+            default: return score0; 
     }
+}
 
     // phương thức được gọi sau mỗi 1 chu kì 1000/60 giây để tạo chuyển động mượt mà
     @Override
@@ -167,7 +205,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     // phương thức để di chuyển đối tượng Bird và các cột trong game
     public void move() {
         if (bird.isAlive()) {
+            double currentTime = System.currentTimeMillis();
             bird.velocityY += bird.gravity;
+            double currentTime1 = System.currentTimeMillis();
+            System.out.println("move " + bird.velocityY +" "+ bird.gravity +" "+ (int) (currentTime1- currentTime)/1000);
             bird.yBird += bird.velocityY;
 
             if (bird.yBird >= 385) { // Kiểm tra nếu chim chạm đáy
