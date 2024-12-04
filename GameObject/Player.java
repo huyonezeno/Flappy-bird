@@ -1,8 +1,10 @@
 package GameObject;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Player {
+public class Player implements Serializable { // implements Serializable để có thể lưu trữ đối tượng vào file một cách tuần tự
+    private static final long serialVersionUID = 1L;
     private int score;
     private String nickName;
     public Player() {}
@@ -11,19 +13,21 @@ public class Player {
         this.nickName = in[0];
         this.score = Integer.parseInt(in[1]);
     }
-    
-    // tạo người chơi với tên và điểm
+
     public String getNickName() {
         return nickName;
     }
-    // lấy điểm của người được chỉ định
+
     public int getScore() {
         return score;
     }
 
-    // so sánh điểm giữa 2 người chơi
     public boolean isBigger(Player p2) {
         return score > p2.score;
     }
 
+    @Override
+    public String toString() {
+        return nickName + " " + score;
+    }
 }
