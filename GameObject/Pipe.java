@@ -25,7 +25,6 @@ public class Pipe {
     public static int startingPipeX = 500;
     public static int startingPipeY = 0;
     private static int velocityX = -4;
-    public boolean canAwardPoint = true;
     
     public Pipe(int x, int y,Image img) {
         this.x = x;
