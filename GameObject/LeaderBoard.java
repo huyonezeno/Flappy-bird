@@ -1,19 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package GameObject;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -21,13 +12,11 @@ public class LeaderBoard extends JPanel {
     private ArrayList<Player> highScore = new ArrayList<>();
 
     public LeaderBoard() {
-        // tạo panel
+        // tao panel
         JPanel panel = new JPanel();
-
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        //khởi tạo leader board cho game - leader board được lưu trong file LeaderBoard.txt
-
-        //tao label va cấu hình cho nó
+        //khoi tao leader board cho game - leader board duoc luu trong file LeaderBoard.txt
+        //tao label va cau hinh cho no
         JLabel label = new JLabel("Leaderboard");
         panel.setPreferredSize(new Dimension(350, 400));
         label.setFont(new Font("Arial", Font.BOLD, 30));
@@ -36,108 +25,159 @@ public class LeaderBoard extends JPanel {
         panel.add(label);
 
         setHighScore();
-        //cấu hình  cho panel
-
+        //cau hinh cho panel
         panel.setOpaque(false);
-
-        //show 10 người chơi cao nhất
+        //show 10 nguoi choi cao nhat
         panel.add(showLeaderBoard(), BorderLayout.CENTER);
         panel.setVisible(true);
 
         add(panel);
     }
 
+    
     public void setHighScore() {
-        if(highScore.size() != 10) {
-            //đường dẫn tới file LeaderBoard.txt
-            String path = "D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\GameObject\\LeaderBoard.txt";
-            // đọc từ  file leaderBoard.txt 10 người chơi có diểm cao nhất và lưu vào mảng highScore
-            try {
-                // đọc file LeaderBoard.txt
-                Scanner sc = new Scanner(new File(path));
+        //doc du lieu tu file LeaderBoard.txt
+        try {
+            ObjectInputStream reader = new ObjectInputStream(new FileInputStream("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\GameObject\\LeaderBoard.txt"));
 
-                while(sc.hasNextLine()) {
-                    Player temp = new Player(sc.nextLine());
-                    highScore.add(temp);
+            // Kiểm tra xem đối tượng được đọc từ tệp có là một arraylist ko tức là có là một Player không trước khi thêm vào highScore
+            Object obj = reader.readObject();
+        if (obj instanceof ArrayList<?>) {
+            ArrayList<?> tempList = (ArrayList<?>) obj; // ? ở đây là  có thể là bất kỳ kiểu dữ liệu nào
+            this.highScore = new ArrayList<>();
+            for (Object item : tempList) {
+                if (item instanceof Player) {
+                    this.highScore.add((Player) item);
                 }
-                sc.close();
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-            //nếu chưa có đủ 10 người chơi thì thêm vào người  chơi mặcc định
-            for (int i = highScore.size(); i < 10; i++) {
-                highScore.add(new Player("Player" + (i + 1) + " 0"));
             }
         }
-        
+            reader.close();
+        } catch (IOException | ClassNotFoundException e) {
+            this.highScore = new ArrayList<>();
+        }
     }
     
     public void UpdateLeaderBoard(Player newHighScore) throws IOException {
-        // cập nhật leader board khi có người chơi mới có điểm cao  hon nguoi chơi ở vị trí cuối cùng
-        if(newHighScore.isBigger(highScore.get(9))) {
-            //nếu người chơi có điểm cao hơn người chơi đầu thì thêm vào đầu tiên
-            if(newHighScore.isBigger(highScore.get(0))) {
-                highScore.add(0, newHighScore);
-            }
-            else {
-                //timf vị trí ngươi chơi có điểm cao nhat trong bảng ít diểmm hơn người  chơi mới
-                int i = 1;
-                while (highScore.get(i).isBigger(newHighScore) && i < highScore.size()) {
-                    i ++;
-                }
-                //thêm vào vị trí của người chơi vừa tìm thấy 
-                highScore.add(i, newHighScore);
-            }   
-            //loại bỏ người chơi ở vị trí cuối cùng(thứ 11 do đã thêm vào 1 người chơi mới)
-            if(highScore.size() > 10) highScore.remove(10);
+        if(highScore.size() < 10) {
+            highScore.add(newHighScore);
+            highScore.sort((a, b) -> b.getScore() - a.getScore());
         }
-        //ghi lại vào file LeaderBoard.txt
+        else {
+            // cap nhat leader board khi co nguoi choi moi co diem cao hon nguoi choi o vi tri cuoi cung
+            if(newHighScore.isBigger(highScore.get(9))) {
+                //neu nguoi choi co diem cao hon nguoi dung dau thi them vao dau tien
+                if(newHighScore.isBigger(highScore.get(0))) {
+                    highScore.add(0, newHighScore);
+                }
+                else {
+                    //tim vi tri nguoi choi co diem cao nhat trong bang it diem hon nguoi choi moi
+                    int i = 1;
+                    while (highScore.get(i).isBigger(newHighScore) && i < highScore.size()) {
+                        i ++;
+                    }
+                    //them vao vi tri cua nguoi choi vua tim thay
+                    highScore.add(i, newHighScore);
+                }   
+                //loai bo nguoi choi o vi tri cuoi cung(thu 11 do da them vao 1 nguoi choi moi)
+                if(highScore.size() > 10) highScore.remove(10);
+            }
+        }   
+        //ghi lai vao file LeaderBoard.txt
         saveHighScoreToFile("D:\\JAVA_2024\\JavaApplication11\\src\\javaapplication11\\GameObject\\LeaderBoard.txt");
     }
 
     public void saveHighScoreToFile(String path) throws IOException {
         //ghi lai vao file LeaderBoard.txt
-        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-        for (int i = 0; i < 10; i++) {
-            writer.write(highScore.get(i).toString());
-            writer.newLine();
-        }
+        ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(path));
+        writer.writeObject(highScore);
         writer.close();
     }
 
     public JPanel showLeaderBoard() {
-        //tạo 1 panel mới chứa leader board
+        // hien thi 10 nguoi choi co diem cao nhat
+        //tao 1 panel moi chua leader board
         JPanel highScorePanel = new JPanel();
         highScorePanel.setLayout(new GridLayout(10, 3, 3, 10));
-
-        //cấu hình cho panel
+        //cau hinh cho panel
         highScorePanel.setSize(300, 400);
         highScorePanel.setOpaque(false);
         highScorePanel.setBorder(null);
+        //neu so nguoi choi co diem cao nhat nho hon 10 thi hien thi so nguoi choi do
+        if(highScore.size() < 10) {
+            //hien thi so nguoi choi dang chua trong leaderboard.txt
+            for(int i = 0; i < highScore.size(); i++) {
+                JLabel temp = new JLabel((i + 1) + "");
+                setLabel(temp);
+                highScorePanel.add(temp);
 
-        //hiển thị 10 người chơi có điểm cao nhất từ file LeaderBoard.txt
-        for (int i = 0; i < 10; i++) {
-            JLabel temp = new JLabel((i + 1) + ".");
-            setLabel(temp);
-            highScorePanel.add(temp);
+                temp = new JLabel(highScore.get(i).getNickName());
+                setLabel(temp);
+                highScorePanel.add(temp);
+                
+                temp = new JLabel(Integer.toString(highScore.get(i).getScore()));
+                setLabel(temp);
+                highScorePanel.add(temp);
+            }
+            //nhung vi tr con lai trong danh sach hien thi voi ten <emptyPlayer> va diem la ...
+            for (int i = highScore.size(); i < 10; i++) {
+                JLabel temp = new JLabel((i + 1) + "");
+                setLabel(temp);
+                highScorePanel.add(temp);
 
-            temp = new JLabel(highScore.get(i).getNickName());
-            setLabel(temp);
-            highScorePanel.add(temp);
-            
-            temp = new JLabel(Integer.toString(highScore.get(i).getScore()));
-            setLabel(temp);
-            highScorePanel.add(temp);
+                temp = new JLabel("<Unknown>");
+                setLabel(temp);
+                highScorePanel.add(temp);
+                    
+                temp = new JLabel("??");
+                setLabel(temp);
+                highScorePanel.add(temp);
+            }
+        }   
+        else if(highScore.size() == 0) {
+            //neu chua co nguoi choi nao thi hien thi <emptyPlayer> va diem la ...
+            for(int i = 0; i < 10; i++) {
+                JLabel temp = new JLabel((i + 1) + "");
+                setLabel(temp);
+                highScorePanel.add(temp);
+
+                temp = new JLabel("<Unknown>");
+                setLabel(temp);
+                highScorePanel.add(temp);
+                
+                temp = new JLabel("??");
+                setLabel(temp);
+                highScorePanel.add(temp);
+            }
+        }
+        else {
+            //hien thi 10 nguoi choi co diem cao nhat tu file
+            for (int i = 0; i < 10; i++) {
+                JLabel temp = new JLabel((i + 1) + "");
+                setLabel(temp);
+                highScorePanel.add(temp);
+
+                temp = new JLabel(highScore.get(i).getNickName());
+                setLabel(temp);
+                highScorePanel.add(temp);
+                
+                temp = new JLabel(Integer.toString(highScore.get(i).getScore()));
+                setLabel(temp);
+                highScorePanel.add(temp);
+            }
         }
 
         return highScorePanel;
     }
 
     public void setLabel(JLabel label) {
-        // cấu  hình cho label
+        // cau hinh cho label
         label.setFont(new Font("Arial", Font.BOLD, 20));
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         label.setForeground(Color.DARK_GRAY);
+    }
+    //kiem tra xem nguoi choi co phai la nguoi choi co diem cao trong top 10 hay khong
+    public boolean isHighScore(Player newHighScore) {
+        return newHighScore.isBigger(highScore.get(9));
     }
 
 }
