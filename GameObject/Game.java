@@ -161,8 +161,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (bird.isAlive()) {
             bird.velocityY += bird.gravity;
             bird.yBird += bird.velocityY;
-            bird.yBird = Math.min(bird.yBird, 420); // Giới hạn vị trí của chim không cho vượt
-            if (bird.yBird == 420) { // Kiểm tra nếu chim chạm đáy
+            bird.yBird = Math.min(bird.yBird, 385); // Giới hạn vị trí của chim không cho vượt
+            if (bird.yBird == 385) { // Kiểm tra nếu chim chạm đáy
                 bird.kill();// Cố định vị trí khi chạm nền
                 audio.hit();
                 gameLoop.stop();
