@@ -43,13 +43,9 @@ public class LeaderBoard extends JPanel {
             // Kiểm tra xem đối tượng được đọc từ tệp có là một arraylist ko tức là có là một Player không trước khi thêm vào highScore
             Object obj = reader.readObject();
         if (obj instanceof ArrayList<?>) {
-            ArrayList<?> tempList = (ArrayList<?>) obj; // ? ở đây là  có thể là bất kỳ kiểu dữ liệu nào
-            this.highScore = new ArrayList<>();
-            for (Object item : tempList) {
-                if (item instanceof Player) {
-                    this.highScore.add((Player) item);
-                }
-            }
+            @SuppressWarnings("unchecked")
+            ArrayList<Player> tempList = (ArrayList<Player>) obj;
+            this.highScore = new ArrayList<>(tempList);
         }
             reader.close();
         } catch (IOException | ClassNotFoundException e) {
